@@ -1,78 +1,80 @@
-// Creating map object
-var myMap = L.map("map", {
-    center: [40.7128, -74.0059],
-    zoom: 11
-  });
-  
-  // Adding tile layer
-  L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
-    attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
-    tileSize: 512,
-    maxZoom: 18,
-    zoomOffset: -1,
-    id: "mapbox/streets-v11",
-    accessToken: API_KEY
-  }).addTo(myMap);
+function createEarthquakes(features) {
+  // Loop through locations and create earthquake markers
+  for (var i = 0; i < features.length; i++) {
+    // Setting the marker radius for the earthquake due to intensity
+    marker = [features[i].geometry.coordinates[1], features[i].geometry.coordinates[0]]
+    popUpText = "<h4>Location: " + features[i].properties.place + "</h4><hr>Time: " +
+      convertTime(features[i].properties.time) + "<hr>Magnitude: " + features[i].properties.mag + 
+      "<hr>Depth (km): " + features[i].geometry.coordinates[2];
 
-// Data: https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson
-// {
-//     type: "FeatureCollection",
-//     metadata: {
-//       generated: Long Integer,
-//       url: String,
-//       title: String,
-//       api: String,
-//       count: Integer,
-//       status: Integer
-//     },
-//     bbox: [
-//       minimum longitude,
-//       minimum latitude,
-//       minimum depth,
-//       maximum longitude,
-//       maximum latitude,
-//       maximum depth
-//     ],
-//     features: [
-//       {
-//         type: "Feature",
-//         properties: {
-//           mag: Decimal,
-//           place: String,
-//           time: Long Integer,
-//           updated: Long Integer,
-//           tz: Integer,
-//           url: String,
-//           detail: String,
-//           felt:Integer,
-//           cdi: Decimal,
-//           mmi: Decimal,
-//           alert: String,
-//           status: String,
-//           tsunami: Integer,
-//           sig:Integer,
-//           net: String,
-//           code: String,
-//           ids: String,
-//           sources: String,
-//           types: String,
-//           nst: Integer,
-//           dmin: Decimal,
-//           rms: Decimal,
-//           gap: Decimal,
-//           magType: String,
-//           type: String
-//         },
-//         geometry: {
-//           type: "Point",
-//           coordinates: [
-//             longitude,
-//             latitude,
-//             depth
-//           ]
-//         },
-//         id: String
-//       },
-//       …
-//     ]
-//   }
+    L.circle(marker, {
+      fillOpacity: .75,
+      color: markerColor(features[i].geometry.coordinates[2]),
+      radius: markerSize(features[i].properties.mag)
+    }).bindPopup(popUpText).addTo(myMap);
+  }
+};
+
+function convertTime(time) {
+  // convert from timestamp to date/time
+  return time;
+};
+
+// Define a markerSize function that will give each city a different radius based on its population
+// Since the magnitude increases by 10 times for every integer increase, increases in magnitude should be
+// more dramatic visually. Increasing as exponent of 10 is too much, but squaring the magnitude should 
+// visually make strong earthquakes more obvious. 
+function markerSize(magnitude) {
+  console.log(magnitude);
+  return magnitude ** 2 * 5000;
+};
+
+function markerColor(depth) {
+
+  var color = "white";
+  if (depth > 90) {
+    color = "red";
+  }
+  else if (depth > 70) {
+    color = "orange";
+  }
+  else if (depth > 50) {
+    color = "yellow";
+  }
+  else if (depth > 30) {
+    color = "green";
+  }
+  else if (depth > 10) {
+    color = "blue";
+  }
+  else {
+    color = "purple";
+  }
+
+};
+// Create our map, start with the center of the US.  Show US zoom level.
+var myMap = L.map("mapid", {
+  center: [42.877742, -97.380979],
+  zoom: 5
+});
+
+// Adding a tile layer (the background map image) to our map
+// We use the addTo method to add objects to our map
+L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+  attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+  tileSize: 512,
+  maxZoom: 18,
+  zoomOffset: -1,
+  id: "mapbox/streets-v11",
+  accessToken: API_KEY
+}).addTo(myMap);
+
+// Store our earthquake URL 
+var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson";
+//var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.geojson";
+// Perform a GET request to the query URL
+d3.json(queryUrl, function(data) {
+  // Once we get a response, send the data.features object to the createFeatures function
+  createEarthquakes(data.features);
+});
+
