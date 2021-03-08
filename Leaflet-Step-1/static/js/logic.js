@@ -3,12 +3,14 @@ function createEarthquakes(features) {
   for (var i = 0; i < features.length; i++) {
     // Setting the marker radius for the earthquake due to intensity
     marker = [features[i].geometry.coordinates[1], features[i].geometry.coordinates[0]]
+
     popUpText = "<h4>Location: " + features[i].properties.place + "</h4><hr>Time: " +
       convertTime(features[i].properties.time) + "<hr>Magnitude: " + features[i].properties.mag + 
       "<hr>Depth (km): " + features[i].geometry.coordinates[2];
 
     L.circle(marker, {
-      fillOpacity: .75,
+      fillOpacity: 0.60,
+      fillColor: markerColor(features[i].geometry.coordinates[2]),
       color: markerColor(features[i].geometry.coordinates[2]),
       radius: markerSize(features[i].properties.mag)
     }).bindPopup(popUpText).addTo(myMap);
@@ -25,33 +27,33 @@ function convertTime(time) {
 // more dramatic visually. Increasing as exponent of 10 is too much, but squaring the magnitude should 
 // visually make strong earthquakes more obvious. 
 function markerSize(magnitude) {
-  console.log(magnitude);
   return magnitude ** 2 * 5000;
 };
 
 function markerColor(depth) {
-
-  var color = "white";
+  
+  var color = "";
   if (depth > 90) {
-    color = "red";
+    color = "#ff0000";
   }
   else if (depth > 70) {
-    color = "orange";
+    color = "#ff8000";
   }
   else if (depth > 50) {
-    color = "yellow";
+    color = "#ffcc00";
   }
   else if (depth > 30) {
-    color = "green";
+    color = "#ffff00";
   }
   else if (depth > 10) {
-    color = "blue";
+    color = "#bfff00";
   }
   else {
-    color = "purple";
+    color = "#80ff00";
   }
-
+  return color;
 };
+
 // Create our map, start with the center of the US.  Show US zoom level.
 var myMap = L.map("mapid", {
   center: [42.877742, -97.380979],
@@ -78,3 +80,20 @@ d3.json(queryUrl, function(data) {
   createEarthquakes(data.features);
 });
 
+/*Legend specific*/
+var legend = L.control({ position: "bottomright" });
+
+legend.onAdd = function(myMap) {
+  var div = L.DomUtil.create("div", "legend");
+  div.innerHTML += '<i style="background: #80ff00"></i><span>-10-10</span><br>';
+  div.innerHTML += '<i style="background: #bfff00"></i><span>10-30</span><br>';
+  div.innerHTML += '<i style="background: #ffff00"></i><span>30-50</span><br>';
+  div.innerHTML += '<i style="background: #ffcc00"></i><span>50-70</span><br>';
+  div.innerHTML += '<i style="background: #ff8000"></i><span>70-90</span><br>';
+  div.innerHTML += '<i style="background: #ff0000"></i><span>90+</span><br>';
+  
+  
+  return div;
+};
+
+legend.addTo(myMap);
