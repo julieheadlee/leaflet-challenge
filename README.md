@@ -1,1 +1,5 @@
 # leaflet-challenge
+
+This project involved creating a global map, with zoom capabilities, and adding markers and popups for earthquakes.  The data is scraped from the US Geological Services earthquake website.  For this project, all earthquakes 4.5 magnitude and above for the previous month were graphed as circle markers.  The circle's size was based upon the magnitude, and the color of the circle was based upon the depth of the earthquake's epicenter.  I used the colors displayed in the example for the assignment, rather than strictly following the "darkest to lightest" (deepest to shallowest) direction given in the assignment.  
+
+I also made the decision to square the magnitude to better represent the difference among the earthquakes, and multiply by 5000 to make sure the markers were visible even when the map was zoomed out to full global size.  As magnitude increases by 1, the strength of an earthquake changes by a factor of 10, so "over-emphasizing" the change in magnitude seems an appropriate way to display this data. Even with this, the vast majority of circles fell within a vary narrow range of sizes.
