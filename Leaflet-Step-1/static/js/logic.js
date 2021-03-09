@@ -4,8 +4,7 @@ function createEarthquakes(features) {
     // Setting the marker radius for the earthquake due to intensity
     marker = [features[i].geometry.coordinates[1], features[i].geometry.coordinates[0]]
 
-    popUpText = "<h4>Location: " + features[i].properties.place + "</h4><hr>Time: " +
-      convertTime(features[i].properties.time) + "<hr>Magnitude: " + features[i].properties.mag + 
+    popUpText = "<h4>Location: " + features[i].properties.place + "</h4><hr>Magnitude: " + features[i].properties.mag + 
       "<hr>Depth (km): " + features[i].geometry.coordinates[2];
 
     L.circle(marker, {
